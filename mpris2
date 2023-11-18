@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+
+import struct
+import os
+import sys
+import json
+import datetime
+
+def log(logmsg = "nothing", log_type = "INFO"):
+    curr_t = datetime.datetime.now()
+    dt = curr_t.strftime("%d-%m-%y %H:%M:%S ")
+    with open("log.log", "a") as file:
+        file.write(dt + log_type + ' ' + str(logmsg) + '\n')
+
+def save_image(url):
+    os.system(f"cd /home/mncc/.config/awesome && curl {url} > artwork.png")
+    os.system('awesome-client "awesome.emit_signal(\\"music::set_cover\\", awesome_dir..\\"artwork.png\\")"')
+
+def send_message(message):
+    encodedContent = json.dumps(message)
+    encodedLength = struct.pack('@I', len(encodedContent))
+    encodedMessage = {'length': encodedLength, 'content': encodedContent}
+
+    sys.stdout.buffer.write(encodedMessage['length'])
+    sys.stdout.write(encodedMessage['content'])
+    sys.stdout.flush()
+
+    log("sent message `" + message + '`')
+
+def get_message():
+    # get the 4 first chars (message length)
+    raw_length = str.encode(sys.stdin.read(4))
+    if len(raw_length) < 4:
+        log("invalid text length, received `" + len(raw_length) + '`', "ERROR")
+        sys.exit(0)
+
+    length = struct.unpack("@i", raw_length)[0]
+    text = sys.stdin.read(length)
+    return json.loads(text)
+
+while True:
+    message = get_message()
+    if message == "ERROR":
+        continue
+    log("received message `" + str(message) + '`')
+    try:
+        match message["message"]:
+            case "ping":
+                send_message("pong")
+            case "artworkURL":
+                if message["url"] != "NO_ARTWORK":
+                    log("got artwork `" + message["url"] + '`')
+                    save_image(message["url"])
+                else:
+                    log("no artwork for this media")
+    except Exception as e:
+        log('`' + e + "` when try to process received message", "ERROR")
+        send_message("ERROR `" + str(e) + "` when received URL")

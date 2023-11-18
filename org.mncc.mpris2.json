@@ -1,0 +1,7 @@
+{
+    "name": "org.mncc.mpris2",
+    "description": "communicate with playerctl",
+    "path": "/home/mncc/PLAYGROUND/chrome_extension/mpris2",
+    "type": "stdio",
+    "allowed_origins": ["chrome-extension://hkackhdjcffkljpognhgljjfcebamjlk/"]
+}

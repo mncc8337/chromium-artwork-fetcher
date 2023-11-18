@@ -1,0 +1,17 @@
+{
+    "name": "mpris2 support for youtube",
+    "version": "1.0.0",
+    "description": "mpris2",
+    "manifest_version": 3,
+    "author": "mncc",
+    "action":{
+        "default_title": "change artwork"
+    },
+    "permissions": [
+        "activeTab",
+        "nativeMessaging"
+    ],
+    "background": {
+        "service_worker": "service_worker.js"
+    }
+}
