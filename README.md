@@ -8,3 +8,4 @@ pls dont install
 
 ## TODO
 - make it actually sending mpris2 signal so everyone can use it
+- also think of a better name
