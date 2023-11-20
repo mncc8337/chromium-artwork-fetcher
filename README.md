@@ -1,5 +1,5 @@
 # chromium mpris2 artwork extension
-make chromium web browsers send artwork link to mpris2  
+make chromium web browsers send artwork link to mpris2 (WIP)  
 also this is how i learn to make chrome extensions lol  
 right now it not sending any mpris2 signal and it only works for my machine so pls dont use it
 
