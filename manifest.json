@@ -1,14 +1,14 @@
 {
-    "name": "mpris2 support for youtube",
+    "name": "youtube thumbnail fetcher",
     "version": "1.0.0",
-    "description": "mpris2",
+    "description": "fetch thumbnails from youtube and save it",
     "manifest_version": 3,
     "author": "mncc",
     "action":{
-        "default_title": "change artwork"
+        "default_title": "fetch thumbnail of current tab"
     },
     "permissions": [
-        "activeTab",
+        "tabs",
         "nativeMessaging"
     ],
     "background": {
