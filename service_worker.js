@@ -1,4 +1,4 @@
-var port = chrome.runtime.connectNative('org.mncc.mpris2');
+var port = chrome.runtime.connectNative('org.mncc.artwork_fetcher');
 port.onDisconnect.addListener(function () {
     console.log('Disconnected');
 });
