@@ -5,7 +5,7 @@ port.onDisconnect.addListener(function () {
 
 function sendMessage(message) {
     port.postMessage(message);
-    console.log("sent message `" + message.message + '`');
+    console.log("sent message: " + message.message);
 };
 
 sendMessage({message: "welcome to the web :)"});
@@ -24,27 +24,51 @@ function YoutubeURL(url) {
     }
 }
 function fetchArtWork() {
-    chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-        let url = new URL(tabs[0].url);
-        console.log(url);
-        let artwork = "";
+    // get all tabs that are active and are playing audio
+    chrome.tabs.query({active: true, audible: true}, tabs => {
+        // get the first tab that can get artwork
+        for(var i = 0; i < tabs.length; i++) {
+            let url = new URL(tabs[i].url);
 
-        if(YoutubeURL(url))
-            artwork = YoutubeArtworkURL(url);
-        else
-            artwork = "NO_ARTWORK";
+            let artwork = "";
+            if(YoutubeURL(url))
+                artwork = YoutubeArtworkURL(url);
+            else
+                artwork = "NO_ARTWORK";
 
-        sendMessage({message: "artworkURL", url: artwork})
+            sendMessage({message: "artworkURL", url: artwork})
+
+            if(artwork != "NO_ARTWORK") {
+                console.log(url);
+                break;
+            }
+        }
     });
 }
 
 // process requests
-port.onMessage.addListener(function (msg) {
-    console.log('received message `' + msg + '`');
-    switch(msg) {
-        case "REQUEST_ARTWORK":
-            fetchArtWork();
+port.onMessage.addListener(function(msg) {
+    switch(msg.type) {
+        case "REQUEST":
+            switch(msg.content) {
+                case "ARTWORK":
+                    console.log("requested artwork");
+                    fetchArtWork();
+                    break;
+            }
             break;
+        case "MESSAGE":
+            console.log("received message: " + msg.content);
+            break;
+        case "ERROR":
+            switch(msg.content) {
+                case "ART_DIR_INVALID":
+                    throw "art directory is invalid or not existed: " + msg.dir;
+                case "RECEIVING_MESSAGE":
+                    throw "app receiving message error: " + msg.error;
+                default:
+                    throw "app error: " + msg.content;
+            }
     }
 });
 

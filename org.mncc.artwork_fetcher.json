@@ -1,7 +1,0 @@
-{
-    "name": "org.mncc.artwork_fetcher",
-    "description": "fetch artworks",
-    "path": "/home/mncc/PLAYGROUND/chrome_extension/app",
-    "type": "stdio",
-    "allowed_origins": ["chrome-extension://hkackhdjcffkljpognhgljjfcebamjlk/"]
-}
