@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 
+# the location to save the downloaded art
+save_art_location = "~/.config/awesome/artwork.png"
+# the shell command to run when done fetching (optional, leave blank to ignore)
+shell_command = 'awesome-client "awesome.emit_signal(\\"music::set_cover\\", awesome_dir..\\"artwork.png\\")"'
+
+
 import struct
 import os
 import sys
@@ -16,13 +22,8 @@ def log(logmsg = "nothing", log_type = "INFO"):
         file.write(dt + log_type + ' ' + str(logmsg) + '\n')
 
 def save_image(url):
-    os.system(f"cd /home/mncc/.config/awesome && curl {url} > artwork.png")
-# TODO: try to remove this xd
-def set_image(path, awesome_dir = True):
-    d = f"\\\"{path}\\\""
-    if awesome_dir:
-        d = "awesome_dir.." + d
-    os.system(f'awesome-client "awesome.emit_signal(\\"music::set_cover\\", {d})"')
+    os.system(f"curl {url} > {save_art_location}")
+    os.system(shell_command)
 
 # communicate with mpris
 
@@ -140,8 +141,6 @@ while True:
                 if message["url"] != "NO_ARTWORK":
                     log("got artwork `" + message["url"] + '`')
                     save_image(message["url"])
-                    # set_artUrl("/home/mncc/.config/awesome/artwork.png")
-                    set_image("artwork.png")
                 else:
                     log("no artwork for this media")
                     # set_image("fallback.png")
