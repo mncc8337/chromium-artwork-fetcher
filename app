@@ -4,6 +4,7 @@ import sys
 # do not create `__pycache__`
 sys.dont_write_bytecode = True
 import struct
+import subprocess
 import os
 import json
 import datetime
@@ -17,10 +18,17 @@ def log(logmsg = "nothing", log_type = "INFO"):
     dt = curr_t.strftime("%d-%m-%y %H:%M:%S ")
     with open(f"logs/{current_time}.log", "a") as file:
         file.write(dt + log_type + ' ' + str(logmsg) + '\n')
+def check_output(command):
+    return subprocess.check_output(command, shell = True, stderr = subprocess.STDOUT, text = True)
 
 def save_image(url):
-    os.system(f"curl {url} > {config.save_art_location}")
-    os.system(config.shell_command)
+    image_donwloading_result = check_output(f"curl {url} > {config.save_art_location}")
+    log("image download result:\n" + image_donwloading_result, "STDOUT")
+    shell_command_result = check_output(config.shell_command)
+    if len(shell_command_result) == 0:
+        log("shell command run successfully")
+    else:
+        log("shell command result:\n" + shell_command_result, "STDOUT")
 
 # communicate with mpris
 
@@ -92,7 +100,7 @@ def get_message():
     # get the 4 first chars (message length)
     raw_length = str.encode(sys.stdin.read(4))
     if len(raw_length) < 4:
-        log("invalid text length, received `" + len(raw_length) + '`', "ERROR")
+        log("invalid text length, received `" + str(len(raw_length)) + '`', "ERROR+EXIT")
         sys.exit(0)
 
     length = struct.unpack("@i", raw_length)[0]
@@ -129,6 +137,7 @@ check_player_stat_thread.start()
 # check if save art path is valid
 if not os.path.exists(os.path.dirname(config.save_art_location)):
     send_message({"type": "ERROR", "content": "ART_DIR_INVALID", "dir": os.path.dirname(config.save_art_location)})
+    log("invalid art dir", "ERROR+EXIT")
     sys.exit(0)
 
 # main thread

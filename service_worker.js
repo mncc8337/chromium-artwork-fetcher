@@ -5,7 +5,7 @@ port.onDisconnect.addListener(function () {
 
 function sendMessage(message) {
     port.postMessage(message);
-    console.log("sent message: " + message.message);
+    console.log("sent message: ", message);
 };
 
 sendMessage({message: "welcome to the web :)"});
@@ -24,8 +24,9 @@ function YoutubeURL(url) {
     }
 }
 function fetchArtWork() {
-    // get all tabs that are active and are playing audio
-    chrome.tabs.query({active: true, audible: true}, tabs => {
+    // get all tabs that are playing audio
+    chrome.tabs.query({audible: true}, tabs => {
+        var found = false;
         // get the first tab that can get artwork
         for(var i = 0; i < tabs.length; i++) {
             let url = new URL(tabs[i].url);
@@ -33,15 +34,26 @@ function fetchArtWork() {
             let artwork = "";
             if(YoutubeURL(url))
                 artwork = YoutubeArtworkURL(url);
-            else
-                artwork = "NO_ARTWORK";
 
-            sendMessage({message: "artworkURL", url: artwork})
-
-            if(artwork != "NO_ARTWORK") {
-                console.log(url);
+            if(artwork != "") {
+                sendMessage({message: "artworkURL", url: artwork})
+                found = true;
                 break;
             }
+        }
+        if(!found) {
+            // try fetching current opened tab
+            chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+                let url = new URL(tabs[0].url);
+
+                let artwork = "";
+                if(YoutubeURL(url))
+                    artwork = YoutubeArtworkURL(url);
+
+                if(artwork == "")
+                    artwork = "NO_ARTWORK";
+                sendMessage({message: "artworkURL", url: artwork});
+            });
         }
     });
 }
@@ -52,7 +64,7 @@ port.onMessage.addListener(function(msg) {
         case "REQUEST":
             switch(msg.content) {
                 case "ARTWORK":
-                    console.log("requested artwork");
+                    console.log("app requested artwork");
                     fetchArtWork();
                     break;
             }

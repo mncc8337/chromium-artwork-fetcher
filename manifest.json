@@ -13,11 +13,5 @@
     ],
     "background": {
         "service_worker": "service_worker.js"
-    },
-    "content_scripts": [
-        {
-          "matches": ["https://*.youtube.com/*"],
-          "js": ["content_scripts/youtube.js"]
-        }
-    ]
+    }
 }
