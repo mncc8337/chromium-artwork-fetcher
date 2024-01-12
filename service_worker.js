@@ -38,6 +38,11 @@ function fetchArtWork() {
         if(!found) {
             // try fetching current opened tab
             chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+                // i hate this error
+                // idk why it occurr
+                // so just ignore it
+                if(tabs[0] == null) return;
+
                 let url = new URL(tabs[0].url);
                 if(supportedURL(url))
                     chrome.tabs.sendMessage(tabs[0].id, "ARTWORK");
