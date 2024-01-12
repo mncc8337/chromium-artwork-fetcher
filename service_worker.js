@@ -10,15 +10,13 @@ function sendMessage(message) {
 
 sendMessage({message: "welcome to the web :)"});
 
-function YoutubeArtworkURL(url) {
-    const id = url.searchParams.get("v");
-    if(id == null) return "NO_ARTWORK";
-    return `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-}
-function YoutubeURL(url) {
+function supportedURL(url) {
     switch(url.origin) {
         case "https://www.youtube.com":
-            return true;
+            if(url.pathname == "/watch")
+                return true;
+            else
+                return false;
         default:
             return false;
     }
@@ -31,12 +29,8 @@ function fetchArtWork() {
         for(var i = 0; i < tabs.length; i++) {
             let url = new URL(tabs[i].url);
 
-            let artwork = "";
-            if(YoutubeURL(url))
-                artwork = YoutubeArtworkURL(url);
-
-            if(artwork != "") {
-                sendMessage({message: "artworkURL", url: artwork})
+            if(supportedURL(url)) {
+                chrome.tabs.sendMessage(tabs[i].id, "ARTWORK");
                 found = true;
                 break;
             }
@@ -45,14 +39,8 @@ function fetchArtWork() {
             // try fetching current opened tab
             chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
                 let url = new URL(tabs[0].url);
-
-                let artwork = "";
-                if(YoutubeURL(url))
-                    artwork = YoutubeArtworkURL(url);
-
-                if(artwork == "")
-                    artwork = "NO_ARTWORK";
-                sendMessage({message: "artworkURL", url: artwork});
+                if(supportedURL(url))
+                    chrome.tabs.sendMessage(tabs[0].id, "ARTWORK");
             });
         }
     });
@@ -88,3 +76,12 @@ port.onMessage.addListener(function(msg) {
 chrome.action.onClicked.addListener(tab => {
     fetchArtWork();
 });
+
+chrome.runtime.onMessage.addListener(function(message, callback) {
+    switch(message["message"]) {
+        case "ARTWORK":
+            sendMessage({message: "artworkURL", url: message["url"]});
+            console.log(`received a artwork url from a ${message["from"]} tab`);
+            break;
+    }
+});    
