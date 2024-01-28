@@ -18,19 +18,21 @@ def log(logmsg = "nothing", log_type = "INFO"):
     dt = curr_t.strftime("%d-%m-%y %H:%M:%S ")
     with open(f"logs/{current_time}.log", "a") as file:
         file.write(dt + log_type + ' ' + str(logmsg) + '\n')
+
+# get shell command output
 def check_output(command):
     return subprocess.check_output(command, shell = True, stderr = subprocess.STDOUT, text = True)
 
+# save image using `curl`
 def save_image(url):
     image_donwloading_result = check_output(f"curl {url} > {config.save_art_location}")
     log("image download result:\n" + image_donwloading_result, "STDOUT")
+
     shell_command_result = check_output(config.shell_command)
     if len(shell_command_result) == 0:
         log("shell command run successfully")
     else:
         log("shell command result:\n" + shell_command_result, "STDOUT")
-
-# communicate with mpris
 
 from gi.repository import Gio, GLib
 
@@ -38,8 +40,6 @@ PLAYER_IFACE = 'org.mpris.MediaPlayer2.Player'
 player_name = None
 player = None
 connection = None
-
-current_trackid = None
 
 def find_chromium_player():
     names = Gio.DBusProxy.new_for_bus_sync(
@@ -64,6 +64,7 @@ def player_proxy(media_name):
             interface_name = PLAYER_IFACE,
             cancellable = None)
 
+# doesnt work (some how)
 # def set_artUrl(path):
 #     metadata = player.get_cached_property("Metadata").unpack()
 #     new_metadata = GLib.Variant("a{sv}",
@@ -84,7 +85,6 @@ def player_proxy(media_name):
 #     log(res, "RESULT")
 
 # communicate with the extension
-
 def send_message(message):
     encodedContent = json.dumps(message)
     encodedLength = struct.pack('@I', len(encodedContent))
@@ -113,10 +113,11 @@ if player_name:
     player = player_proxy(player_name)
     connection = player.get_connection()
 
-# check thread
+current_trackid = None
+interval = 1
+# request for artwork if needed for each interval
 def check_player_stat():
     global connection, player, player_name, current_trackid
-    # request for artwork if needed for each 1 second
     while True:
         player_name = find_chromium_player()
         if player_name:
@@ -125,12 +126,15 @@ def check_player_stat():
 
             metadata = player.get_cached_property("Metadata").unpack()
             # log(metadata, "METADATA")
-            if current_trackid != metadata["mpris:trackid"]:
+
+            track_changed = current_trackid != metadata["mpris:trackid"]
+            if track_changed:
                 log("new media (probably) detected")
                 send_message({"type": "REQUEST", "content": "ARTWORK"})
+
             current_trackid = metadata["mpris:trackid"]
                 
-        time.sleep(1)
+        time.sleep(interval)
 check_player_stat_thread = threading.Thread(target = check_player_stat)
 check_player_stat_thread.start()
 
