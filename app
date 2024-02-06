@@ -12,12 +12,14 @@ import time
 import threading
 import config
 
-current_time = datetime.datetime.now().strftime("%d-%m-%y_%H:%M:%S ")
+current_time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S")
+max_logtype_length = 10
+
 def log(logmsg = "nothing", log_type = "INFO"):
     curr_t = datetime.datetime.now()
-    dt = curr_t.strftime("%d-%m-%y %H:%M:%S ")
+    dt = curr_t.strftime("%y-%m-%d %H:%M:%S ")
     with open(f"logs/{current_time}.log", "a") as file:
-        file.write(dt + log_type + ' ' + str(logmsg) + '\n')
+        file.write(dt + log_type + ' '*(max_logtype_length - len(log_type)) + str(logmsg) + '\n')
 
 # get shell command output
 def check_output(command):
@@ -100,7 +102,7 @@ def get_message():
     # get the 4 first chars (message length)
     raw_length = str.encode(sys.stdin.read(4))
     if len(raw_length) < 4:
-        log("invalid text length, received `" + str(len(raw_length)) + '`', "ERROR+EXIT")
+        log("invalid text length, received `" + str(len(raw_length)) + '`', "EXIT")
         sys.exit(0)
 
     length = struct.unpack("@i", raw_length)[0]
@@ -141,7 +143,7 @@ check_player_stat_thread.start()
 # check if save art path is valid
 if not os.path.exists(os.path.dirname(config.save_art_location)):
     send_message({"type": "ERROR", "content": "ART_DIR_INVALID", "dir": os.path.dirname(config.save_art_location)})
-    log("invalid art dir", "ERROR+EXIT")
+    log("invalid art dir", "EXIT")
     sys.exit(0)
 
 # main thread

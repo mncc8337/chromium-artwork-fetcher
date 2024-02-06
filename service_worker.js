@@ -51,7 +51,7 @@ function fetchArtWork() {
     });
 }
 
-// process requests
+// process request
 port.onMessage.addListener(function(msg) {
     switch(msg.type) {
         case "REQUEST":

@@ -21,7 +21,7 @@
     },
     "content_scripts": [
         {
-            "matches": ["https://*.youtube.com/watch*"],
+            "matches": ["https://*.youtube.com/*"],
             "js": ["content_scripts/youtube.js"]
         }
     ]
