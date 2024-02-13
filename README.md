@@ -12,5 +12,4 @@ curently the following sites are supported
 - ???
 
 # TODO
-- add mpris:artUrl property to browser's sent metadata
-- add support to soundcloud, ...
+- add support to other site: soundcloud, ...
