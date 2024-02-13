@@ -4,6 +4,7 @@ curently the following sites are supported
 - [youtube](https://www.youtube.com)
 
 # install
+- install dependency `curl`
 - clone the project `git clone https://github.com/mncc8337/chromium-artwork-fetcher.git && cd chromium-artwork-fetcher`
 - edit `save_art_location` and `shell_command` value in `./config.py`
 - open browser and go to `chrome://extensions`
