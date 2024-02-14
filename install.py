@@ -14,7 +14,7 @@ BROWSERS = [
 ]
 
 
-extension_id = "hkackhdjcffkljpognhgljjfcebamjlk"
+extension_id = "dihmlaokcapfopigfdlbphplplmolghm"
 # use provide id
 if len(sys.argv) > 1:
     valid_id = all(97 <= ord(c) <= 112 for c in sys.argv[1])
@@ -26,7 +26,7 @@ cwd = os.path.dirname(os.path.abspath(__file__))
 manifest = {
     "name": "org.mncc.artwork_fetcher",
     "description": "fetch artworks",
-    "path": os.path.join(cwd, "app"),
+    "path": os.path.join(cwd, "native/app"),
     "type": "stdio",
     "allowed_origins": [f"chrome-extension://{extension_id}/"]
 }

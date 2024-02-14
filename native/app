@@ -29,7 +29,7 @@ def check_output(command):
 
 # load config
 import yaml
-config = 0
+config = None
 with open("config.yaml", "r") as f:
     config = yaml.load(f, Loader = yaml.Loader)
 

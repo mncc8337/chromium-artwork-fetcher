@@ -6,11 +6,14 @@ curently the following sites are supported
 # install
 - install dependency `curl`
 - clone the project `git clone https://github.com/mncc8337/chromium-artwork-fetcher.git && cd chromium-artwork-fetcher`
-- edit `save_art_location` and `shell_command` value in `./config.yaml`
+- edit `save_art_location` and `shell_command` value in `./native/config.yaml`
 - open browser and go to `chrome://extensions`
-- enable `Developer mode` and `load unpacked` the root of this repo. copy the extension ID
+- enable `Developer mode` and `load unpacked` `./extension`. copy the extension ID
 - run `./install.py EXTENSION_ID` with `EXTENSION_ID` being the copied ID mentioned above
 - ???
 
 # TODO
-- add support to other site: soundcloud, ...
+- add support to other site:
+  - [ ] soundcloud
+  - [ ] bandcamp
+  - ...
