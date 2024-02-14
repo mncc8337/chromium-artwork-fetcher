@@ -15,7 +15,7 @@ BROWSERS = [
 
 
 extension_id = "hkackhdjcffkljpognhgljjfcebamjlk"
-# use provided id
+# use provide id
 if len(sys.argv) > 1:
     valid_id = all(97 <= ord(c) <= 112 for c in sys.argv[1])
     if valid_id:

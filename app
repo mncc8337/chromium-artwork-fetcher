@@ -3,18 +3,20 @@
 import sys
 # do not create `__pycache__`
 sys.dont_write_bytecode = True
+
 import struct
 import subprocess
-import os
+import threading
 import json
+import os
 import datetime
 import time
-import threading
-import config
+
 
 current_time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S")
 max_logtype_length = 10
 
+# misc
 def log(logmsg = "nothing", log_type = "INFO"):
     curr_t = datetime.datetime.now()
     dt = curr_t.strftime("%y-%m-%d %H:%M:%S ")
@@ -25,12 +27,21 @@ def log(logmsg = "nothing", log_type = "INFO"):
 def check_output(command):
     return subprocess.check_output(command, shell = True, stderr = subprocess.STDOUT, text = True)
 
+# load config
+import yaml
+config = 0
+with open("config.yaml", "r") as f:
+    config = yaml.load(f, Loader = yaml.Loader)
+
+save_art_location = os.path.expandvars(config["save_art_location"])
+shell_command = os.path.expandvars(config["shell_command"])
+
 # save image using `curl`
 def save_image(url):
-    image_donwloading_result = check_output(f"curl {url} > {config.save_art_location}")
+    image_donwloading_result = check_output(f"curl {url} > {save_art_location}")
     log("image download result:\n" + image_donwloading_result, "STDOUT")
 
-    shell_command_result = check_output(config.shell_command)
+    shell_command_result = check_output(shell_command)
     if len(shell_command_result) == 0:
         log("shell command run successfully")
     else:
@@ -65,26 +76,6 @@ def player_proxy(media_name):
             object_path = '/org/mpris/MediaPlayer2',
             interface_name = PLAYER_IFACE,
             cancellable = None)
-
-# doesnt work (some how)
-# def set_artUrl(path):
-#     metadata = player.get_cached_property("Metadata").unpack()
-#     new_metadata = GLib.Variant("a{sv}",
-#         {
-#             'mpris:length':  GLib.Variant("i", metadata['mpris:length']),
-#             'mpris:trackid': GLib.Variant("s", metadata['mpris:trackid']),
-#             'xesam:album': GLib.Variant("s", metadata['xesam:album']),
-#             'xesam:artist': GLib.Variant("(s)", tuple(metadata['xesam:artist'])),
-#             'xesam:title': GLib.Variant("s", metadata['xesam:title']),
-#             'mpris:artUrl': GLib.Variant("s", path)
-#         }
-#     )
-#     changed_props = GLib.Variant("a{sv}", {
-#         "Metadata": new_metadata,
-#     })
-#     res = connection.emit_signal(None, player.get_object_path(), "org.freedesktop.DBus.Properties", "PropertiesChanged",
-#         GLib.Variant("(sa{sv}as)", (player.get_interface_name(), { "Metadata": new_metadata }, [])))
-#     log(res, "RESULT")
 
 # communicate with the extension
 def send_message(message):
@@ -138,12 +129,12 @@ def check_player_stat():
             current_trackid = metadata["mpris:trackid"]
                 
         time.sleep(interval)
-check_player_stat_thread = threading.Thread(target = check_player_stat)
+check_player_stat_thread = threading.Thread(target = check_player_stat, daemon = True)
 check_player_stat_thread.start()
 
 # check if save art path is valid
-if not os.path.exists(os.path.dirname(config.save_art_location)):
-    send_message({"type": "ERROR", "content": "ART_DIR_INVALID", "dir": os.path.dirname(config.save_art_location)})
+if not os.path.exists(os.path.dirname(save_art_location)):
+    send_message({"type": "ERROR", "content": "ART_DIR_INVALID", "dir": os.path.dirname(save_art_location)})
     log("invalid art dir", "EXIT")
     sys.exit(0)
 
