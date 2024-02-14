@@ -4,6 +4,7 @@ curently the following sites are supported
 - [youtube](https://www.youtube.com)
 
 # install
+- install dependency `curl`
 - clone the project `git clone https://github.com/mncc8337/chromium-artwork-fetcher.git && cd chromium-artwork-fetcher`
 - edit `save_art_location` and `shell_command` value in `./config.py`
 - open browser and go to `chrome://extensions`
@@ -12,5 +13,4 @@ curently the following sites are supported
 - ???
 
 # TODO
-- add mpris:artUrl property to browser's sent metadata
-- add support to soundcloud, ...
+- add support to other site: soundcloud, ...
