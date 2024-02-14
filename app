@@ -130,8 +130,9 @@ def check_player_stat():
             # log(metadata, "METADATA")
 
             track_changed = current_trackid != metadata["mpris:trackid"]
+            track_changed &= metadata["mpris:trackid"] != "/org/mpris/MediaPlayer2/TrackList/NoTrack"
             if track_changed:
-                log("new media (probably) detected")
+                log("new media detected")
                 send_message({"type": "REQUEST", "content": "ARTWORK"})
 
             current_trackid = metadata["mpris:trackid"]
