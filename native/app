@@ -34,13 +34,21 @@ with open("config.yaml", "r") as f:
     config = yaml.load(f, Loader = yaml.Loader)
 
 save_art_location = os.path.expandvars(config["save_art_location"])
+fallback = os.path.expandvars(config["fallback"])
 shell_command = os.path.expandvars(config["shell_command"])
 
 # save image using `curl`
 def save_image(url):
     image_donwloading_result = check_output(f"curl {url} > {save_art_location}")
     log("image download result:\n" + image_donwloading_result, "STDOUT")
+def use_fallback():
+    stdout = check_output(f"cp {fallback} {save_art_location}")
+    if stdout == '':
+        log("copied fallback image to save art location", "STDOUT")
+    else:
+        log("error when copying fallback image:\n" + stdout, "ERROR")
 
+def run_command():
     shell_command_result = check_output(shell_command)
     if len(shell_command_result) == 0:
         log("shell command run successfully")
@@ -152,6 +160,8 @@ while True:
                     save_image(message["url"])
                 else:
                     log("no artwork for this media")
+                    use_fallback()
+                run_command()
             case "loopType":
                 log("loop type changed to " + message["loop"])
             case "shuffle":
