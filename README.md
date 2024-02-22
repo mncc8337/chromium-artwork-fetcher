@@ -10,6 +10,7 @@ curently the following sites are supported
 - open browser and go to `chrome://extensions`
 - enable `Developer mode` and `load unpacked` `./extension`. copy the extension ID
 - run `./install.py EXTENSION_ID` with `EXTENSION_ID` being the copied ID mentioned above
+- reload the extension and then the browser
 - ???
 
 # TODO
