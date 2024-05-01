@@ -12,7 +12,6 @@ import os
 import datetime
 import time
 
-
 current_time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S")
 max_logtype_length = 10
 
@@ -28,19 +27,16 @@ def check_output(command):
     return subprocess.check_output(command, shell = True, stderr = subprocess.STDOUT, text = True)
 
 # load config
-import yaml
-config = None
-with open("config.yaml", "r") as f:
-    config = yaml.load(f, Loader = yaml.Loader)
-
-save_art_location = os.path.expandvars(config["save_art_location"])
-fallback = os.path.expandvars(config["fallback"])
-shell_command = os.path.expandvars(config["shell_command"])
+import config
+save_art_location = os.path.expandvars(config.save_art_location)
+fallback = os.path.expandvars(config.fallback)
+shell_command = os.path.expandvars(config.shell_command)
 
 # save image using `curl`
 def save_image(url):
     image_donwloading_result = check_output(f"curl {url} > {save_art_location}")
     log("image download result:\n" + image_donwloading_result, "STDOUT")
+
 def use_fallback():
     stdout = check_output(f"cp {fallback} {save_art_location}")
     if stdout == '':

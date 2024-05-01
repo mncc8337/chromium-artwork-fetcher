@@ -19,38 +19,34 @@ function supportedURL(url) {
             return false;
     }
 }
-function fetchArtWork() {
-    var found = false;
+async function fetchArtWork() {
     // get all tabs that are playing audio
-    chrome.tabs.query({audible: true}, tabs => {
-        // get the first tab that can get artwork
-        for(var i = 0; i < tabs.length; i++) {
-            let url = new URL(tabs[i].url);
+    var tabs = await chrome.tabs.query({audible: true});
+    // get the first tab that can get artwork
+    for(var i = 0; i < tabs.length; i++) {
+        let url = new URL(tabs[i].url);
 
-            if(supportedURL(url)) {
-                chrome.tabs.sendMessage(tabs[i].id, "ARTWORK");
-                found = true;
-                return;
-            }
+        if(supportedURL(url)) {
+            chrome.tabs.sendMessage(tabs[i].id, "ARTWORK");
+            return;
         }
-    });
-    if(!found) {
-        // try fetching current opened tab
-        chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-            // idk why it occur
-            // so just ignore it
-            if(tabs[0] == null) return;
-    
-            let url = new URL(tabs[0].url);
-            if(supportedURL(url)) {
-                chrome.tabs.sendMessage(tabs[0].id, "ARTWORK");
-                found = true;
-                return;
-            }
-        });
     }
-    if(!found)
-        sendMessage({message: "artworkURL", url: "NO_ARTWORK"});
+
+    // try fetching current opened tab
+    tabs = await chrome.tabs.query({active: true, lastFocusedWindow: true});
+    // idk why it occur
+    // so just ignore it
+    if(tabs[0] == null) return;
+
+    let url = new URL(tabs[0].url);
+    if(supportedURL(url)) {
+        chrome.tabs.sendMessage(tabs[0].id, "ARTWORK");
+        found = true;
+        return;
+    }
+
+    // nothing found
+    sendMessage({message: "artworkURL", url: "NO_ARTWORK"});
 }
 
 // process app message
@@ -94,7 +90,10 @@ chrome.action.onClicked.addListener(function() {
 
 // make service worker active on startup
 chrome.runtime.onStartup.addListener(function() {
-    console.log("onstartup");
+    console.log(`onStartup()`);
 });
+// chrome.runtime.onInstalled.addListener(function() {
+//     console.log(`onInstalled()`);
+// });
 
 sendMessage({message: "welcome to the web :)"});
